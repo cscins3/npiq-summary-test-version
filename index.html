@@ -4,44 +4,422 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>NPI-Q SUMMARY</title>
+  <meta name="description" content="A clear, touch-friendly NPI-Q scoring summary with one-click report copying.">
+  <meta name="theme-color" content="#edf2f7">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232f6fae'/%3E%3Cpath d='M17 34l10 10 20-24' fill='none' stroke='white' stroke-width='7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
   <style>
-    :root { font-family: Arial, Helvetica, sans-serif; color-scheme: light; }
+    :root {
+      color-scheme: light;
+      --blue-700: oklch(0.43 0.105 252);
+      --blue-600: oklch(0.50 0.115 252);
+      --blue-100: oklch(0.94 0.035 245);
+      --slate-900: oklch(0.27 0.025 240);
+      --slate-700: oklch(0.40 0.025 240);
+      --slate-600: oklch(0.48 0.022 240);
+      --slate-400: oklch(0.67 0.018 240);
+      --slate-300: oklch(0.82 0.015 240);
+      --slate-200: oklch(0.89 0.012 240);
+      --slate-100: oklch(0.95 0.009 240);
+      --green-700: oklch(0.43 0.10 155);
+      --green-600: oklch(0.50 0.11 155);
+      --canvas: oklch(0.978 0.005 240);
+      --paper: oklch(0.995 0.002 240);
+      --text: var(--slate-900);
+      --text-muted: var(--slate-600);
+      --border: var(--slate-200);
+      --accent: var(--blue-600);
+      --selected: var(--blue-100);
+      --font-ui: "Aptos", "Segoe UI", "Noto Sans", "PingFang TC", "Microsoft JhengHei", sans-serif;
+      --font-report: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    }
+
     * { box-sizing: border-box; }
-    body { max-width: 1500px; margin: 0 auto; padding: 22px 18px 48px; color: #202b36; background: #fff; }
-    h2 { text-align: center; margin: 8px 0 22px; font-size: clamp(24px, 3vw, 32px); }
-    h3 { margin: 26px 0 12px; }
-    .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid #cbd5e1; border-radius: 10px; }
-    table { width: 100%; min-width: 1050px; border-collapse: collapse; table-layout: fixed; }
-    col.item-col { width: 214px; }
-    col.yes-col { width: 70px; }
-    th, td { border: 1px solid #d9e0e8; padding: 0; text-align: center; }
-    thead th { background: #edf2f7; padding: 14px 8px; font-size: 17px; line-height: 1.4; }
-    thead small { font-size: 13px; font-weight: normal; }
-    tbody tr:nth-child(even) { background: #f8fafc; }
-    td.item-name { padding: 13px 10px; text-align: left; font-size: 16px; font-weight: 500; }
-    .tap-target { display: flex; align-items: center; justify-content: center; width: 100%; min-height: 58px; cursor: pointer; position: relative; }
-    .tap-target:hover { background: #e6f1ff; }
-    .tap-target:has(input:focus-visible) { outline: 3px solid #2b6cb0; outline-offset: -3px; }
-    .tap-target:has(input:checked) { background: #dcecff; }
-    .tap-target:has(input:disabled) { cursor: not-allowed; opacity: .42; }
-    input[type="checkbox"], input[type="radio"] { width: 23px; height: 23px; margin: 0; accent-color: #2269b4; cursor: pointer; }
-    input:disabled { cursor: not-allowed; }
-    .choice-number { position: absolute; bottom: 3px; right: 7px; font-size: 11px; color: #6b7280; pointer-events: none; }
-    .total-row th, .total-row td { background: #e6eef8; font-size: 21px; font-weight: 700; height: 58px; }
-    .total-row th { font-size: 17px; }
-    .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
-    button { min-height: 52px; padding: 12px 22px; border: 0; border-radius: 9px; color: #fff; background: #2364a5; font-size: 17px; font-weight: 600; cursor: pointer; }
-    button:hover { filter: brightness(.93); }
-    button:focus-visible { outline: 3px solid #ffb74d; outline-offset: 3px; }
-    #copy-button { background: #24774c; }
-    #reset-button { background: #6b7280; }
-    #status { min-height: 22px; margin: 11px 0 0; font-size: 15px; color: #1e6743; }
-    pre { white-space: pre-wrap; overflow-wrap: anywhere; background: #f8fafc; padding: 18px; border: 1px solid #cbd5e1; border-radius: 9px; text-align: left; font-size: 14px; line-height: 1.65; }
-    @media(max-width:600px) { body { padding: 14px 10px 30px; } .actions button { flex: 1 1 145px; } h2 { margin-bottom: 15px; } }
+
+    html { min-height: 100%; background: var(--canvas); }
+
+    body {
+      min-height: 100dvh;
+      max-width: 1560px;
+      margin: 0 auto;
+      padding: 36px 28px 56px;
+      color: var(--text);
+      background: var(--canvas);
+      font-family: var(--font-ui);
+      font-size: 16px;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page-header { margin: 0 auto 26px; text-align: center; }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(30px, 3vw, 40px);
+      font-weight: 720;
+      line-height: 1.15;
+      letter-spacing: -0.035em;
+    }
+
+    .subtitle {
+      margin: 10px 0 0;
+      color: var(--text-muted);
+      font-size: 16px;
+    }
+
+    h2 {
+      margin: 30px 0 12px;
+      font-size: 21px;
+      font-weight: 680;
+      letter-spacing: -0.015em;
+    }
+
+    .table-scroll {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border: 1px solid var(--slate-300);
+      border-radius: 16px;
+      background: var(--paper);
+      box-shadow: 0 10px 30px oklch(0.35 0.025 240 / 0.07);
+      scrollbar-color: var(--slate-400) var(--slate-100);
+      scrollbar-width: thin;
+    }
+
+    .table-scroll:focus-visible {
+      outline: 3px solid var(--accent);
+      outline-offset: 4px;
+    }
+
+    table {
+      width: 100%;
+      min-width: 1240px;
+      border-collapse: separate;
+      border-spacing: 0;
+      table-layout: fixed;
+      font-variant-numeric: tabular-nums;
+    }
+
+    col.item-col { width: 244px; }
+    col.yes-col { width: 92px; }
+
+    th, td {
+      padding: 0;
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      text-align: center;
+    }
+
+    tr > :last-child { border-right: 0; }
+    tbody tr:last-child > * { border-bottom: 0; }
+
+    thead th {
+      background: var(--slate-100);
+      padding: 18px 10px;
+      color: var(--slate-900);
+      font-size: 20px;
+      font-weight: 680;
+      line-height: 1.35;
+    }
+
+    thead th:nth-child(3) { background: oklch(0.935 0.025 245); }
+    thead th:nth-child(4) { background: oklch(0.94 0.022 210); }
+
+    thead small {
+      display: inline-block;
+      margin-top: 6px;
+      color: var(--slate-700);
+      font-size: 15px;
+      font-weight: 500;
+      line-height: 1.45;
+    }
+
+    tbody tr:nth-child(even) { background: oklch(0.977 0.004 240); }
+    tbody tr { transition: background-color 160ms ease-out; }
+    tbody tr:has(.yes-check:checked) { background: oklch(0.965 0.014 245); }
+
+    td.item-name {
+      padding: 14px 20px;
+      text-align: left;
+      font-size: 19px;
+      font-weight: 570;
+      line-height: 1.4;
+    }
+
+    .tap-target {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: 100%;
+      min-height: 68px;
+      padding: 8px 4px;
+      cursor: pointer;
+      transition: background-color 160ms ease-out;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .yes-label { min-height: 68px; }
+    .tap-target:hover:not(:has(input:disabled)) { background: oklch(0.925 0.035 245); }
+
+    .tap-target:has(input:focus-visible) {
+      z-index: 1;
+      outline: 3px solid var(--blue-700);
+      outline-offset: -4px;
+    }
+
+    .tap-target:has(input:checked) { background: var(--selected); }
+    .tap-target:has(input:disabled) { cursor: not-allowed; }
+
+    input[type="checkbox"], input[type="radio"] {
+      appearance: none;
+      -webkit-appearance: none;
+      display: grid;
+      flex: 0 0 auto;
+      place-content: center;
+      width: 28px;
+      height: 28px;
+      margin: 0;
+      border: 2px solid var(--slate-400);
+      background: var(--paper);
+      cursor: pointer;
+      transition: border-color 150ms ease-out, background-color 150ms ease-out, transform 150ms ease-out;
+    }
+
+    input[type="checkbox"] { border-radius: 7px; }
+    input[type="radio"] { border-radius: 50%; }
+
+    input[type="checkbox"]::before {
+      content: "";
+      width: 7px;
+      height: 13px;
+      border: solid var(--paper);
+      border-width: 0 2.5px 2.5px 0;
+      transform: rotate(45deg) scale(0);
+      transition: transform 140ms ease-out;
+    }
+
+    input[type="radio"]::before {
+      content: "";
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--paper);
+      transform: scale(0);
+      transition: transform 140ms ease-out;
+    }
+
+    input[type="checkbox"]:checked, input[type="radio"]:checked {
+      border-color: var(--blue-700);
+      background: var(--blue-600);
+    }
+
+    input:checked::before { transform: rotate(0) scale(1); }
+    input[type="checkbox"]:checked::before { transform: rotate(45deg) scale(1); }
+    input:hover:not(:disabled) { border-color: var(--blue-700); }
+    input:active:not(:disabled) { transform: scale(0.92); }
+    input:disabled { cursor: not-allowed; opacity: 0.42; }
+
+    .choice-number {
+      color: var(--slate-700);
+      font-size: 15px;
+      font-weight: 650;
+      line-height: 1;
+      pointer-events: none;
+    }
+
+    .tap-target:has(input:checked) .choice-number { color: var(--blue-700); }
+    .tap-target:has(input:disabled) .choice-number { color: var(--slate-600); }
+
+    .total-row th, .total-row td {
+      height: 70px;
+      border-bottom: 0;
+      background: oklch(0.905 0.032 245);
+      color: var(--slate-900);
+      font-size: 27px;
+      font-weight: 750;
+    }
+
+    .total-row th { font-size: 19px; letter-spacing: 0.025em; }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 22px;
+    }
+
+    button {
+      min-height: 58px;
+      padding: 14px 26px;
+      border: 1px solid transparent;
+      border-radius: 11px;
+      color: var(--paper);
+      background: var(--blue-600);
+      box-shadow: 0 3px 8px oklch(0.35 0.04 252 / 0.14);
+      font-family: var(--font-ui);
+      font-size: 17px;
+      font-weight: 650;
+      line-height: 1.2;
+      cursor: pointer;
+      transition: background-color 160ms ease-out, border-color 160ms ease-out, transform 160ms ease-out;
+    }
+
+    button:hover:not(:disabled) { background: var(--blue-700); }
+    button:active:not(:disabled) { transform: translateY(1px); }
+    button:focus-visible { outline: 3px solid var(--slate-900); outline-offset: 3px; }
+    button:disabled { cursor: wait; opacity: 0.65; }
+    #copy-button { background: var(--green-600); }
+    #copy-button:hover:not(:disabled) { background: var(--green-700); }
+
+    #reset-button {
+      border-color: var(--slate-300);
+      color: var(--slate-700);
+      background: var(--paper);
+      box-shadow: none;
+    }
+
+    #reset-button:hover:not(:disabled) {
+      border-color: var(--slate-400);
+      color: var(--slate-900);
+      background: var(--slate-100);
+    }
+
+    #status {
+      min-height: 26px;
+      margin: 10px 0 0;
+      color: var(--green-700);
+      font-size: 16px;
+      font-weight: 570;
+    }
+
+    #status.is-error { color: oklch(0.47 0.14 25); }
+
+    pre {
+      min-height: 92px;
+      margin: 0;
+      padding: 22px 24px;
+      border: 1px solid var(--slate-300);
+      border-radius: 14px;
+      background: var(--paper);
+      color: var(--slate-900);
+      box-shadow: 0 6px 20px oklch(0.35 0.025 240 / 0.05);
+      font-family: var(--font-report);
+      font-size: 15px;
+      line-height: 1.7;
+      text-align: left;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    #output:empty::before {
+      content: "Your generated report will appear here.";
+      color: var(--text-muted);
+      font-family: var(--font-ui);
+      font-size: 16px;
+    }
+
+    .diagnosis-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 14px;
+    }
+
+    .diagnosis-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      width: 230px;
+      color: var(--slate-700);
+      font-size: 15px;
+      font-weight: 620;
+    }
+
+    .diagnosis-field:last-child { width: 150px; }
+
+    .diagnosis-field input {
+      width: 100%;
+      min-height: 48px;
+      padding: 10px 13px;
+      border: 1px solid var(--slate-300);
+      border-radius: 10px;
+      background: var(--paper);
+      color: var(--text);
+      font-family: var(--font-ui);
+      font-size: 17px;
+    }
+
+    .diagnosis-field input:hover { border-color: var(--slate-400); }
+
+    .diagnosis-field input:focus-visible {
+      border-color: var(--accent);
+      outline: 3px solid var(--blue-100);
+      outline-offset: 1px;
+    }
+
+    #diagnosis-output {
+      display: block;
+      width: 100%;
+      min-height: 128px;
+      margin: 0;
+      padding: 22px 24px;
+      border: 1px solid var(--slate-300);
+      border-radius: 14px;
+      background: var(--paper);
+      color: var(--text);
+      box-shadow: 0 6px 20px oklch(0.35 0.025 240 / 0.05);
+      font-family: var(--font-ui);
+      font-size: 19px;
+      line-height: 1.85;
+      resize: vertical;
+    }
+
+    #diagnosis-output:focus-visible {
+      border-color: var(--accent);
+      outline: 3px solid var(--blue-100);
+      outline-offset: 2px;
+    }
+
+    .diagnosis-actions { margin-top: 14px; }
+    #copy-diagnosis-button { background: var(--green-600); }
+    #copy-diagnosis-button:hover:not(:disabled) { background: var(--green-700); }
+
+    .diagnosis-status {
+      min-height: 25px;
+      margin: 8px 0 0;
+      color: var(--green-700);
+      font-size: 16px;
+      font-weight: 570;
+    }
+
+    .diagnosis-status.is-error { color: oklch(0.47 0.14 25); }
+
+    @media (max-width: 700px) {
+      body { padding: 24px 14px 40px; }
+      .page-header { margin-bottom: 20px; }
+      h1 { font-size: 30px; }
+      .subtitle { font-size: 15px; }
+      .table-scroll { border-radius: 12px; }
+      .actions { display: grid; grid-template-columns: 1fr 1fr; }
+      #generate-button { grid-column: 1 / -1; }
+      button { width: 100%; padding-inline: 16px; }
+      pre { padding: 18px; font-size: 14px; }
+      .diagnosis-controls { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 12px; }
+      .diagnosis-field, .diagnosis-field:last-child { width: 100%; }
+      #diagnosis-output { min-height: 156px; padding: 18px; font-size: 17px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition-duration: 0.01ms !important; }
+    }
   </style>
 </head>
 <body>
-  <h2>NPI-Q SUMMARY</h2>
+  <header class="page-header">
+    <h1>NPI-Q SUMMARY</h1>
+    <p class="subtitle">Select <strong>Yes</strong> to enable severity and caregiver distress scoring.</p>
+  </header>
   <form id="npiq-form">
     <div class="table-scroll" role="region" aria-label="NPI-Q scoring table" tabindex="0">
       <table>
@@ -73,8 +451,27 @@
     </div>
     <p id="status" aria-live="polite"></p>
   </form>
-  <h3>Summary Output:</h3>
-  <pre id="output" aria-live="polite"></pre>
+  <h2>Summary Output</h2>
+  <pre id="output" aria-live="polite" aria-label="Generated NPI-Q report"></pre>
+
+  <section aria-labelledby="diagnosis-heading">
+    <h2 id="diagnosis-heading">診斷書生成欄</h2>
+    <div class="diagnosis-controls">
+      <label class="diagnosis-field">
+        <span>心智測驗日期</span>
+        <input type="date" id="diagnosis-date">
+      </label>
+      <label class="diagnosis-field">
+        <span>CDR 分數</span>
+        <input type="text" id="cdr-score" inputmode="decimal" maxlength="10" autocomplete="off">
+      </label>
+    </div>
+    <textarea id="diagnosis-output" rows="3" readonly aria-label="產生的診斷書文字"></textarea>
+    <div class="diagnosis-actions">
+      <button type="button" id="copy-diagnosis-button">複製診斷書文字</button>
+    </div>
+    <p id="diagnosis-status" class="diagnosis-status" aria-live="polite"></p>
+  </section>
 
   <script>
     'use strict';
@@ -115,7 +512,7 @@
       tr.appendChild(nameCell);
       const yesCell = document.createElement('td');
       const yesLabel = document.createElement('label');
-      yesLabel.className = 'tap-target';
+      yesLabel.className = 'tap-target yes-label';
       yesLabel.title = `${item} — Yes`;
       const checkbox = document.createElement('input');
       checkbox.type = 'checkbox';
@@ -134,18 +531,35 @@
       return document.querySelectorAll(`input[name="${kind}_${index}"]`);
     }
 
-    function updateTotals() {
+    function getTotals() {
       const sum = kind => [...document.querySelectorAll(`input.${kind}:checked:not(:disabled)`)]
         .reduce((total, input) => total + Number(input.value), 0);
-      document.getElementById('severity-total').textContent = sum('severity');
-      document.getElementById('distress-total').textContent = sum('distress');
+      return { severityTotal: sum('severity'), distressTotal: sum('distress') };
+    }
+
+    function updateDiagnosis(totals = getTotals()) {
+      const dateValue = document.getElementById('diagnosis-date').value;
+      let dateText = '　年　月　日';
+      if (dateValue) {
+        const [year, month, day] = dateValue.split('-').map(Number);
+        dateText = `${year}年${month}月${day}日`;
+      }
+      const cdrText = document.getElementById('cdr-score').value.trim() || '　';
+      document.getElementById('diagnosis-output').value = `該病患因上述疾病於本院追蹤，於${dateText}心智測驗報告CDR為${cdrText}分。NPIQ量表：疾病嚴重度${totals.severityTotal}分，照顧者負荷${totals.distressTotal}分。`;
+      const diagnosisStatus = document.getElementById('diagnosis-status');
+      diagnosisStatus.classList.remove('is-error');
+      diagnosisStatus.textContent = '';
+    }
+
+    function updateTotals() {
+      const totals = getTotals();
+      document.getElementById('severity-total').textContent = totals.severityTotal;
+      document.getElementById('distress-total').textContent = totals.distressTotal;
+      updateDiagnosis(totals);
     }
 
     function createReport() {
-      const severityTotal = [...document.querySelectorAll('input.severity:checked:not(:disabled)')]
-        .reduce((sum, input) => sum + Number(input.value), 0);
-      const distressTotal = [...document.querySelectorAll('input.distress:checked:not(:disabled)')]
-        .reduce((sum, input) => sum + Number(input.value), 0);
+      const { severityTotal, distressTotal } = getTotals();
       const detailLines = items.map((item, i) => {
         const sev = document.querySelector(`input[name="severity_${i}"]:checked:not(:disabled)`);
         const dis = document.querySelector(`input[name="distress_${i}"]:checked:not(:disabled)`);
@@ -158,6 +572,7 @@
       updateTotals();
       const report = createReport();
       document.getElementById('output').textContent = report;
+      status.classList.remove('is-error');
       status.textContent = '';
       return report;
     }
@@ -176,29 +591,63 @@
       updateTotals();
       // Prevent a stale report from showing after any selections change.
       document.getElementById('output').textContent = '';
+      status.classList.remove('is-error');
       status.textContent = '';
     });
+
+    async function copyText(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        return;
+      }
+      const helper = document.createElement('textarea');
+      helper.value = text;
+      helper.style.position = 'fixed';
+      helper.style.left = '-9999px';
+      document.body.appendChild(helper);
+      helper.select();
+      try {
+        if (!document.execCommand('copy')) throw new Error('Copy command failed');
+      } finally {
+        helper.remove();
+      }
+    }
 
     async function copyReport() {
       // Generate afresh so the clipboard always matches current entries.
       const report = generateSummary();
+      const button = document.getElementById('copy-button');
+      button.disabled = true;
       try {
-        if (navigator.clipboard && window.isSecureContext) {
-          await navigator.clipboard.writeText(report);
-        } else {
-          const helper = document.createElement('textarea');
-          helper.value = report;
-          helper.style.position = 'fixed';
-          helper.style.left = '-9999px';
-          document.body.appendChild(helper);
-          helper.select();
-          const succeeded = document.execCommand('copy');
-          helper.remove();
-          if (!succeeded) throw new Error('Copy command failed');
-        }
+        await copyText(report);
+        status.classList.remove('is-error');
         status.textContent = 'Report copied to clipboard.';
+        button.textContent = 'Copied';
       } catch (error) {
+        status.classList.add('is-error');
         status.textContent = 'Unable to copy automatically. Please select and copy the Summary Output below.';
+      } finally {
+        button.disabled = false;
+        window.setTimeout(() => { button.textContent = 'Copy Report'; }, 1800);
+      }
+    }
+
+    async function copyDiagnosis() {
+      const button = document.getElementById('copy-diagnosis-button');
+      const diagnosisStatus = document.getElementById('diagnosis-status');
+      const text = document.getElementById('diagnosis-output').value;
+      button.disabled = true;
+      try {
+        await copyText(text);
+        diagnosisStatus.classList.remove('is-error');
+        diagnosisStatus.textContent = '診斷書文字已複製。';
+        button.textContent = '已複製';
+      } catch (error) {
+        diagnosisStatus.classList.add('is-error');
+        diagnosisStatus.textContent = '無法自動複製，請選取並複製上方診斷書文字。';
+      } finally {
+        button.disabled = false;
+        window.setTimeout(() => { button.textContent = '複製診斷書文字'; }, 1800);
       }
     }
 
@@ -208,15 +657,19 @@
         input.checked = false;
         input.disabled = true;
       });
-      document.getElementById('severity-total').textContent = '0';
-      document.getElementById('distress-total').textContent = '0';
+      updateTotals();
       document.getElementById('output').textContent = '';
-      status.textContent = 'Form reset.';
+      status.classList.remove('is-error');
+      status.textContent = 'Form reset to its original state.';
     }
 
+    document.getElementById('diagnosis-date').addEventListener('input', () => updateDiagnosis());
+    document.getElementById('cdr-score').addEventListener('input', () => updateDiagnosis());
     document.getElementById('generate-button').addEventListener('click', generateSummary);
     document.getElementById('copy-button').addEventListener('click', copyReport);
+    document.getElementById('copy-diagnosis-button').addEventListener('click', copyDiagnosis);
     document.getElementById('reset-button').addEventListener('click', resetForm);
+    updateTotals();
   </script>
 </body>
 </html>
